@@ -1,0 +1,82 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  email      String   @unique
+  password   String
+  name       String
+  createdAt  DateTime @default(now())
+  
+  lockedSeats Seat[]   @relation("UserLocks")
+  bookings    Booking[]
+}
+
+model Operator {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  
+  routes    Route[]
+}
+
+model Route {
+  id          String   @id @default(uuid())
+  operatorId  String
+  origin      String
+  destination String
+  createdAt   DateTime @default(now())
+  
+  operator    Operator @relation(fields: [operatorId], references: [id])
+  schedules   Schedule[]
+}
+
+model Schedule {
+  id        String   @id @default(uuid())
+  routeId   String
+  departure DateTime
+  price     Float
+  createdAt DateTime @default(now())
+  
+  route     Route    @relation(fields: [routeId], references: [id])
+  seats     Seat[]
+  bookings  Booking[]
+
+  @@index([routeId, departure])
+}
+
+model Seat {
+  id           String    @id @default(uuid())
+  scheduleId   String
+  seatNumber   String
+  status       String    @default("AVAILABLE") // AVAILABLE, LOCKED, BOOKED
+  lockedBy     String?
+  lockedUntil  DateTime?
+  version      Int       @default(0) // Optimistic Locking
+  
+  schedule     Schedule  @relation(fields: [scheduleId], references: [id])
+  lockedByUser User?     @relation("UserLocks", fields: [lockedBy], references: [id])
+  booking      Booking?
+
+  @@unique([scheduleId, seatNumber])
+  @@index([scheduleId, status])
+}
+
+model Booking {
+  id         String   @id @default(uuid())
+  userId     String
+  scheduleId String
+  seatId     String   @unique
+  status     String   @default("CONFIRMED") // CONFIRMED, CANCELLED
+  createdAt  DateTime @default(now())
+  
+  user       User     @relation(fields: [userId], references: [id])
+  schedule   Schedule @relation(fields: [scheduleId], references: [id])
+  seat       Seat     @relation(fields: [seatId], references: [id])
+}
