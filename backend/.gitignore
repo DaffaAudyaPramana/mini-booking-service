@@ -55,3 +55,9 @@ Thumbs.db
 *.tmp
 *.temp
 .cache/
+
+# ==== IDE & Agents ====
+.agents/
+.claude/
+.windsurf/
+skills-lock.json
