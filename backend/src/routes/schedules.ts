@@ -1,11 +1,20 @@
 import { Router } from 'express';
 import { prisma } from '../db';
 import { authenticateToken } from '../middleware/auth';
+import rateLimit from 'express-rate-limit';
 
 const router = Router();
 
+const searchLimiter = rateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 30, // Limit each IP to 30 requests per `window` (here, per 1 minute)
+  message: { message: 'Too many search requests from this IP, please try again after a minute' },
+  standardHeaders: true, 
+  legacyHeaders: false, 
+});
+
 // GET /schedules?route_id=&date=
-router.get('/', async (req, res) => {
+router.get('/', searchLimiter, async (req, res) => {
   const { route_id, date } = req.query;
 
   try {

@@ -56,7 +56,20 @@ npx vitest run
 
 ## Dokumentasi API (Ringkas)
 - `POST /auth/login`: Menerima `{ email, password }` mengembalikan JWT.
-- `GET /schedules`: Mengambil jadwal perjalanan.
+- `GET /schedules`: Mengambil jadwal perjalanan. Dilengkapi **Rate Limiting** (Max 30 requests/menit).
 - `GET /schedules/:id/seats`: Mengambil ketersediaan kursi. Otomatis membersihkan lock yang sudah expired secara lazy.
 - `POST /schedules/:id/seats/:seatId/lock`: (Protected) Mengunci kursi selama 5 menit.
 - `POST /bookings/confirm`: (Protected) Konfirmasi pesanan kursi.
+
+## Bonus Features
+Aplikasi ini juga dilengkapi dengan poin-poin Bonus:
+1. **Containerization dengan Docker**: Anda dapat menjalankan keseluruhan sistem hanya dengan mengetikkan `docker-compose up -d --build` di root folder.
+2. **Rate Limiting**: Endpoint pencarian rute (`/schedules`) dibatasi maksimal 30 *requests* per menit per IP untuk mencegah serangan *spam/DDoS*.
+3. **Standalone Load Test Script (50 Paralel Request)**:
+   Membuktikan keandalan *concurrency locking* dengan mengirimkan 50 request JWT unik menembak 1 kursi yang sama di waktu yang sama persis (simultan).
+   Cara menjalankan test:
+   ```bash
+   cd backend
+   node load-test.js
+   ```
+   **Ekspektasi Output:** Pasti hanya ada **1 Request** yang mendapatkan 200 OK (Berhasil), dan 49 request lainnya mendapatkan 409 Conflict (Gagal). Race condition tidak terjadi!

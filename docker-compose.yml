@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    ports:
+      - "4000:4000"
+    environment:
+      - NODE_ENV=production
+      - PORT=4000
+      - JWT_SECRET=prod-secret-key-super-secure
+      # SQLite database will be created inside the container
+      - DATABASE_URL=file:./prod.db 
+    volumes:
+      # Persist SQLite data
+      - backend-data:/app/prisma
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      # Important: frontend needs to know backend URL. Since it's client-side fetched in our code, 
+      # localhost:4000 still works for the browser, but we can set it here if we want to use process.env
+    depends_on:
+      - backend
+
+volumes:
+  backend-data:
