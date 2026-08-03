@@ -61,8 +61,8 @@ npx vitest run
 - `POST /schedules/:id/seats/:seatId/lock`: (Protected) Mengunci kursi selama 5 menit.
 - `POST /bookings/confirm`: (Protected) Konfirmasi pesanan kursi.
 
-## Bonus Features
-Aplikasi ini juga dilengkapi dengan poin-poin Bonus:
+## Fitur Lanjutan (Docker, Rate Limiting & Load Testing)
+Aplikasi ini juga dilengkapi dengan fitur-fitur pendukung:
 1. **Containerization dengan Docker**: Anda dapat menjalankan keseluruhan sistem hanya dengan mengetikkan `docker-compose up -d --build` di root folder.
 2. **Rate Limiting**: Endpoint pencarian rute (`/schedules`) dibatasi maksimal 30 *requests* per menit per IP untuk mencegah serangan *spam/DDoS*.
 3. **Standalone Load Test Script (50 Paralel Request)**:

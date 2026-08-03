@@ -8,8 +8,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Mini Booking Service - Premium",
-  description: "Experience the next level of seamless seat booking with concurrency safety.",
+  title: "Mini Booking Service",
+  description: "Seamless seat booking system with concurrency safety.",
 };
 
 export default function RootLayout({

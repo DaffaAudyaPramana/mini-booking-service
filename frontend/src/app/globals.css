@@ -19,7 +19,7 @@
 }
 
 @media (prefers-color-scheme: light) {
-  /* We force dark mode for this premium look */
+  /* Default dark theme */
   :root {
     --background: #0f172a;
     --foreground: #f8fafc;

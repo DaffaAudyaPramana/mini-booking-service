@@ -55,7 +55,7 @@ export default function LoginPage() {
             <h1 className="text-4xl font-extrabold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent drop-shadow-sm tracking-tight">
               AstraBooking
             </h1>
-            <p className="text-slate-400 mt-2 text-sm font-medium">Access your premium travel experience</p>
+            <p className="text-slate-400 mt-2 text-sm font-medium">Access your travel booking system</p>
           </div>
 
           {error && (
