@@ -8,9 +8,9 @@ const router = Router();
 const searchLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
   max: 30, // Limit each IP to 30 requests per `window` (here, per 1 minute)
-  message: { message: 'Too many search requests from this IP, please try again after a minute' },
-  standardHeaders: true, 
-  legacyHeaders: false, 
+  message: { message: 'Too many search requests, please try again after a minute' },
+  standardHeaders: true,
+  legacyHeaders: false,
 });
 
 // GET /schedules?route_id=&date=
@@ -19,19 +19,19 @@ router.get('/', searchLimiter, async (req, res) => {
 
   try {
     const whereClause: any = {};
-    
+
     if (route_id) {
       whereClause.routeId = String(route_id);
     }
-    
+
     if (date) {
       // date is expected in YYYY-MM-DD format
       const startDate = new Date(String(date));
       startDate.setUTCHours(0, 0, 0, 0);
-      
+
       const endDate = new Date(String(date));
       endDate.setUTCHours(23, 59, 59, 999);
-      
+
       whereClause.departure = {
         gte: startDate,
         lte: endDate,
@@ -70,7 +70,7 @@ router.get('/:id/seats', async (req, res) => {
     const now = new Date();
     const mappedSeats = seats.map(seat => {
       let status = seat.status;
-      
+
       if (status === 'LOCKED' && seat.lockedUntil && seat.lockedUntil < now) {
         // Technically it's available because the lock expired. 
         // We could also run a background job or lazy-update it in DB here.
@@ -95,7 +95,7 @@ router.get('/:id/seats', async (req, res) => {
 router.post('/:id/seats/:seatId/lock', authenticateToken, async (req: any, res: any) => {
   const { id, seatId } = req.params;
   const userId = req.user.id;
-  
+
   try {
     const seat = await prisma.seat.findUnique({
       where: { id: seatId }
@@ -106,19 +106,19 @@ router.post('/:id/seats/:seatId/lock', authenticateToken, async (req: any, res: 
     }
 
     const now = new Date();
-    
+
     // Check if it's already booked or locked by someone else and not expired
     if (seat.status === 'BOOKED') {
       return res.status(400).json({ message: 'Seat is already booked' });
     }
-    
+
     if (seat.status === 'LOCKED' && seat.lockedBy !== userId && seat.lockedUntil && seat.lockedUntil > now) {
       return res.status(400).json({ message: 'Seat is locked by another user' });
     }
 
     // Optimistic Locking: update using current version
     const lockExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 mins
-    
+
     const updateResult = await prisma.seat.updateMany({
       where: {
         id: seatId,
